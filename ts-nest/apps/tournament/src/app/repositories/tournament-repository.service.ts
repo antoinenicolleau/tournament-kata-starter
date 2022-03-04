@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {Tournament} from '../api-model';
+import {Participant, Tournament} from '../api-model';
 
 @Injectable()
 export class TournamentRepositoryService {
