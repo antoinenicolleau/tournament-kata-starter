@@ -3,9 +3,9 @@ import {Participant, ParticipantToAdd} from '../../api-model';
 import {v4 as uuidv4} from 'uuid';
 import {
     PARTICIPANT_DOESNT_EXIST,
-    PARTICIPANT_ELO_IS_EMPTY,
     PARTICIPANT_ELO_MUST_BE_A_NUMBER,
     PARTICIPANT_NAME_ALREADY_EXIST,
+    PARTICIPANT_REQUIRE_ELO,
     PARTICIPANT_REQUIRE_NAME,
     TOURNAMENT_DOESNT_EXIST
 } from '../../exceptions/errors-messages';
@@ -22,11 +22,11 @@ export class ParticipantController {
     public addParticipantToTournament(@Param('tournament_id') tournament_id: string, @Body() participantToAdd: ParticipantToAdd): {
         id: string;
     } {
-        if (participantToAdd.name == null) {
+        if (!participantToAdd.name) {
             throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_REQUIRE_NAME);
         }
-        if (participantToAdd.elo == null) {
-            throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_ELO_IS_EMPTY);
+        if (!participantToAdd.elo) {
+            throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_REQUIRE_ELO);
         }
         if (!Number(participantToAdd.elo)) {
             throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_ELO_MUST_BE_A_NUMBER);
@@ -54,12 +54,17 @@ export class ParticipantController {
         if (tournament === undefined) {
             throw generateException(HttpStatus.NOT_FOUND, TOURNAMENT_DOESNT_EXIST);
         }
-
+        let foundedParticipant = null;
         tournament.participants.forEach((value) => {
             if (value.id === participant_id) {
-                return participant_id
+                foundedParticipant = value
+
             }
         })
+        if (foundedParticipant) {
+            return foundedParticipant
+        }
+
         throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_DOESNT_EXIST);
 
     }

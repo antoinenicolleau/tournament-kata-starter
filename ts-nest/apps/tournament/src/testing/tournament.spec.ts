@@ -4,10 +4,10 @@ import {startApp} from './test.utils';
 import * as request from 'supertest';
 
 import {
-    PARTICIPANT_ELO_IS_EMPTY,
     PARTICIPANT_ELO_MUST_BE_A_NUMBER,
     PARTICIPANT_NAME_ALREADY_EXIST,
-    PARTICIPANT_NAME_IS_EMPTY,
+    PARTICIPANT_REQUIRE_ELO,
+    PARTICIPANT_REQUIRE_NAME,
     TOURNAMENT_DOESNT_EXIST,
     TOURNAMENT_NAME_ALREADY_EXIST,
     TOURNAMENT_REQUIRE_NAME
@@ -95,91 +95,92 @@ describe('/tournament endpoint', () => {
         });
 
         it('Should have store the participant', async () => {
-            let {body} = await request(app.getHttpServer())
+            const postTournament = await request(app.getHttpServer())
                 .post('/api/tournaments')
                 .send(exampleTournament)
                 .expect(201);
 
-            const tournament_id = body.id
-            body = await request(app.getHttpServer())
-                .post(`/api/tournaments/${tournament_id}/participants`)
+            const tournamentId = postTournament.body.id
+            const postParticipant = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournamentId}/participants`)
                 .send(exampleParticipant)
                 .expect(201);
-            const participant_id = body.id
+
+            const participantId = postParticipant.body.id
 
             const get_participant = await request(app.getHttpServer())
-                .get(`/api/tournaments/${tournament_id}/participants/${participant_id}`)
+                .get(`/api/tournaments/${tournamentId}/participants/${participantId}`)
                 .expect(200);
 
-            expect(get_participant.body.name).toEqual(exampleParticipant);
+            expect(get_participant.body.name).toEqual(exampleParticipant.name);
         });
 
         it('Participant name already exist', async () => {
-            let {body} = await request(app.getHttpServer())
+            const postTournament = await request(app.getHttpServer())
                 .post('/api/tournaments')
                 .send(exampleTournament)
                 .expect(201);
 
-            const tournament_id = body.id
+            const tournamentId = postTournament.body.id
             await request(app.getHttpServer())
-                .post(`/api/tournaments/${tournament_id}/participants`)
+                .post(`/api/tournaments/${tournamentId}/participants`)
                 .send(exampleParticipant)
                 .expect(201);
 
-            body = await request(app.getHttpServer())
-                .post(`/api/tournaments/${tournament_id}/participants`)
+            const postParticipant = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournamentId}/participants`)
                 .send(exampleParticipant)
                 .expect(400);
 
-            expect(body.error).toEqual(PARTICIPANT_NAME_ALREADY_EXIST);
+            expect(postParticipant.body.error).toEqual(PARTICIPANT_NAME_ALREADY_EXIST);
         });
 
         it('Participant name is empty', async () => {
             exampleParticipant.name = '';
-            let {body} = await request(app.getHttpServer())
+            const postTournament = await request(app.getHttpServer())
                 .post('/api/tournaments')
                 .send(exampleTournament)
                 .expect(201);
 
-            const tournament_id = body.id;
-            body = await request(app.getHttpServer())
-                .post(`/api/tournaments/${tournament_id}/participants`)
+            const tournamentId = postTournament.body.id;
+            const postParticipant = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournamentId}/participants`)
                 .send(exampleParticipant)
                 .expect(400);
 
-            expect(body.error).toEqual(PARTICIPANT_NAME_IS_EMPTY);
+            expect(postParticipant.body.error).toEqual(PARTICIPANT_REQUIRE_NAME);
         });
 
         it('Participant Elo must be a number', async () => {
-            exampleParticipant.elo = '152236'
-            let {body} = await request(app.getHttpServer())
+            exampleParticipant.elo = 'aaa'
+            const postTournament = await request(app.getHttpServer())
                 .post('/api/tournaments')
                 .send(exampleTournament)
                 .expect(201);
 
-            const tournament_id = body.id
-            body = await request(app.getHttpServer())
-                .post(`/api/tournaments/${tournament_id}/participants`)
+            const tournamentId = postTournament.body.id
+            const postParticipant = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournamentId}/participants`)
                 .send(exampleParticipant)
                 .expect(400);
 
-            expect(body.error).toEqual(PARTICIPANT_ELO_MUST_BE_A_NUMBER);
+            expect(postParticipant.body.error).toEqual(PARTICIPANT_ELO_MUST_BE_A_NUMBER);
         });
 
         it('Participant Elo is empty', async () => {
             exampleParticipant.elo = null
-            let {body} = await request(app.getHttpServer())
+            const postTournament = await request(app.getHttpServer())
                 .post('/api/tournaments')
                 .send(exampleTournament)
                 .expect(201);
 
-            const tournament_id = body.id
-            body = await request(app.getHttpServer())
-                .post(`/api/tournaments/${tournament_id}/participants`)
+            const tournamentId = postTournament.body.id
+            const postParticipant = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournamentId}/participants`)
                 .send(exampleParticipant)
                 .expect(400);
 
-            expect(body.error).toEqual(PARTICIPANT_ELO_IS_EMPTY);
+            expect(postParticipant.body.error).toEqual(PARTICIPANT_REQUIRE_ELO);
         });
     });
 });
