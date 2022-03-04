@@ -2,7 +2,11 @@ import {Body, Controller, Get, HttpStatus, Param, Post} from '@nestjs/common';
 import {Tournament, TournamentToAdd} from '../../api-model';
 import {v4 as uuidv4} from 'uuid';
 import {TournamentRepositoryService} from '../../repositories/tournament-repository.service';
-import {NAME_ALREADY_USED, REQUIRE_NAME, TOURNAMENT_DOESNT_EXIST} from '../../exceptions/errors-messages';
+import {
+    TOURNAMENT_DOESNT_EXIST,
+    TOURNAMENT_NAME_ALREADY_EXIST,
+    TOURNAMENT_REQUIRE_NAME
+} from '../../exceptions/errors-messages';
 import {generateException} from '../../exceptions/exception-manager';
 
 @Controller('tournaments')
@@ -15,11 +19,11 @@ export class TournamentController {
         id: string;
     } {
         if (tournamentToAdd.name == null) {
-            throw generateException(HttpStatus.BAD_REQUEST, REQUIRE_NAME);
+            throw generateException(HttpStatus.BAD_REQUEST, TOURNAMENT_REQUIRE_NAME);
         }
         this.tournamentRepository.getTournaments().forEach((value) => {
             if (value.name === tournamentToAdd.name) {
-                throw generateException(HttpStatus.BAD_REQUEST, NAME_ALREADY_USED);
+                throw generateException(HttpStatus.BAD_REQUEST, TOURNAMENT_NAME_ALREADY_EXIST);
             }
         })
 

@@ -1,26 +1,44 @@
-import {TournamentToAdd} from '../app/api-model';
+import {ParticipantToAdd, TournamentToAdd} from '../app/api-model';
 import {INestApplication} from '@nestjs/common';
 import {startApp} from './test.utils';
 import * as request from 'supertest';
 
-import {NAME_ALREADY_USED, REQUIRE_NAME, TOURNAMENT_DOESNT_EXIST} from '../app/exceptions/errors-messages';
+import {
+    PARTICIPANT_ELO_IS_EMPTY,
+    PARTICIPANT_ELO_MUST_BE_A_NUMBER,
+    PARTICIPANT_NAME_ALREADY_EXIST,
+    PARTICIPANT_NAME_IS_EMPTY,
+    TOURNAMENT_DOESNT_EXIST,
+    TOURNAMENT_NAME_ALREADY_EXIST,
+    TOURNAMENT_REQUIRE_NAME
+} from '../app/exceptions/errors-messages';
 
 
 function generateExampleTournament() {
     return {
-        name: 'Unreal' + Math.floor(Math.random() * (1000)),
+        name: 'Tournament_' + Math.floor(Math.random() * (1000)),
     } as TournamentToAdd;
 }
+
+function generateExampleParticipant() {
+    return {
+        name: 'Participant_' + Math.floor(Math.random() * (1000)),
+        elo: 2500
+    } as ParticipantToAdd;
+}
+
 
 describe('/tournament endpoint', () => {
     let app: INestApplication;
     let exampleTournament;
+    let exampleParticipant;
     beforeAll(async () => {
         app = await startApp();
     });
 
     beforeEach(() => {
-        exampleTournament = generateExampleTournament()
+        exampleTournament = generateExampleTournament();
+        exampleParticipant = generateExampleParticipant();
     })
 
     describe('[POST] when creating a tournament', () => {
@@ -52,7 +70,7 @@ describe('/tournament endpoint', () => {
                 .send({})
                 .expect(400);
 
-            expect(body.error).toEqual(REQUIRE_NAME);
+            expect(body.error).toEqual(TOURNAMENT_REQUIRE_NAME);
         });
 
         it('Name is already used', async () => {
@@ -66,7 +84,7 @@ describe('/tournament endpoint', () => {
                 .send(exampleTournament)
                 .expect(400);
 
-            expect(body.error).toEqual(NAME_ALREADY_USED);
+            expect(body.error).toEqual(TOURNAMENT_NAME_ALREADY_EXIST);
         });
 
         it('Tournament doesn\'t exist', async () => {
@@ -74,6 +92,94 @@ describe('/tournament endpoint', () => {
                 .get(`/api/tournaments/0`)
                 .expect(404);
             expect(get.body.error).toEqual(TOURNAMENT_DOESNT_EXIST);
+        });
+
+        it('Should have store the participant', async () => {
+            let {body} = await request(app.getHttpServer())
+                .post('/api/tournaments')
+                .send(exampleTournament)
+                .expect(201);
+
+            const tournament_id = body.id
+            body = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournament_id}/participants`)
+                .send(exampleParticipant)
+                .expect(201);
+            const participant_id = body.id
+
+            const get_participant = await request(app.getHttpServer())
+                .get(`/api/tournaments/${tournament_id}/participants/${participant_id}`)
+                .expect(200);
+
+            expect(get_participant.body.name).toEqual(exampleParticipant);
+        });
+
+        it('Participant name already exist', async () => {
+            let {body} = await request(app.getHttpServer())
+                .post('/api/tournaments')
+                .send(exampleTournament)
+                .expect(201);
+
+            const tournament_id = body.id
+            await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournament_id}/participants`)
+                .send(exampleParticipant)
+                .expect(201);
+
+            body = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournament_id}/participants`)
+                .send(exampleParticipant)
+                .expect(400);
+
+            expect(body.error).toEqual(PARTICIPANT_NAME_ALREADY_EXIST);
+        });
+
+        it('Participant name is empty', async () => {
+            exampleParticipant.name = '';
+            let {body} = await request(app.getHttpServer())
+                .post('/api/tournaments')
+                .send(exampleTournament)
+                .expect(201);
+
+            const tournament_id = body.id;
+            body = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournament_id}/participants`)
+                .send(exampleParticipant)
+                .expect(400);
+
+            expect(body.error).toEqual(PARTICIPANT_NAME_IS_EMPTY);
+        });
+
+        it('Participant Elo must be a number', async () => {
+            exampleParticipant.elo = '152236'
+            let {body} = await request(app.getHttpServer())
+                .post('/api/tournaments')
+                .send(exampleTournament)
+                .expect(201);
+
+            const tournament_id = body.id
+            body = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournament_id}/participants`)
+                .send(exampleParticipant)
+                .expect(400);
+
+            expect(body.error).toEqual(PARTICIPANT_ELO_MUST_BE_A_NUMBER);
+        });
+
+        it('Participant Elo is empty', async () => {
+            exampleParticipant.elo = null
+            let {body} = await request(app.getHttpServer())
+                .post('/api/tournaments')
+                .send(exampleTournament)
+                .expect(201);
+
+            const tournament_id = body.id
+            body = await request(app.getHttpServer())
+                .post(`/api/tournaments/${tournament_id}/participants`)
+                .send(exampleParticipant)
+                .expect(400);
+
+            expect(body.error).toEqual(PARTICIPANT_ELO_IS_EMPTY);
         });
     });
 });
