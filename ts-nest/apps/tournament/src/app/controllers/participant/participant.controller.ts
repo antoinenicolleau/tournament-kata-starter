@@ -31,7 +31,8 @@ export class ParticipantController {
         if (!Number(participantToAdd.elo)) {
             throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_ELO_MUST_BE_A_NUMBER);
         }
-        this.participantRepository.getParticipants()?.forEach((value) => {
+        const participants = await this.participantRepository.getParticipants()
+        participants.forEach((value) => {
             if (value.name === participantToAdd.name) {
                 throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_NAME_ALREADY_EXIST);
             }

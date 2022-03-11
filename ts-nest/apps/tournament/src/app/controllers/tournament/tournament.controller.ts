@@ -21,21 +21,15 @@ export class TournamentController {
         if (tournamentToAdd.name == null) {
             throw generateException(HttpStatus.BAD_REQUEST, TOURNAMENT_REQUIRE_NAME);
         }
-        this.tournamentRepository.getTournaments().forEach((value) => {
+        const tournaments = await this.tournamentRepository.getTournaments()
+        tournaments.forEach((value) => {
             if (value.name === tournamentToAdd.name) {
                 throw generateException(HttpStatus.BAD_REQUEST, TOURNAMENT_NAME_ALREADY_EXIST);
             }
         })
-
-        const tournament = {
-            id: uuidv4(),
-            name: tournamentToAdd.name,
-            phases: [],
-            participants: [],
-        };
-        this.tournamentRepository.saveTournament(tournament);
-
-        return {id: tournament.id};
+        await this.tournamentRepository.saveTournament(tournamentToAdd)
+        const tournamentSaved = await this.tournamentRepository.getTournamentByName(tournamentToAdd.name)
+        return {id: tournamentSaved.id};
     }
 
     @Get(':id')
