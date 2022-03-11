@@ -1,5 +1,5 @@
 import {Body, Controller, Get, HttpStatus, Param, Post} from '@nestjs/common';
-import {Tournament, TournamentToAdd} from '../../api-model';
+import {ITournament, TournamentToAdd} from '../../api-model';
 import {v4 as uuidv4} from 'uuid';
 import {TournamentRepositoryService} from '../../repositories/tournament-repository.service';
 import {
@@ -39,7 +39,7 @@ export class TournamentController {
     }
 
     @Get(':id')
-    public getTournament(@Param('id') id: string): Tournament {
+    public getTournament(@Param('id') id: string): ITournament {
         const tournament = this.tournamentRepository.getTournament(id);
         if (tournament === undefined) {
             throw generateException(HttpStatus.NOT_FOUND, TOURNAMENT_DOESNT_EXIST);

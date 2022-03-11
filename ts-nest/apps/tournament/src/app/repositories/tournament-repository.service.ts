@@ -1,23 +1,35 @@
 import {Injectable} from '@nestjs/common';
-import {Participant, Tournament} from '../api-model';
+import {IParticipant, ParticipantToAdd, ITournament, TournamentToAdd} from '../api-model';
+import {InjectRepository} from "@nestjs/typeorm";
+import {ParticipantEntity} from "../entities/participant.entity";
+import {Repository} from "typeorm";
+import {TournamentEntity} from "../entities/tournament.entity";
 
 @Injectable()
 export class TournamentRepositoryService {
-    private tournaments = new Map<string, Tournament>();
-
-    public saveTournament(tournament: Tournament): void {
-        this.tournaments.set(tournament.id, tournament);
+    constructor(
+        @InjectRepository(ParticipantEntity)
+        private tournamentsRepository: Repository<TournamentEntity>
+    ) {
     }
 
-    public getTournament(tournamentId: string): Tournament {
-        return this.tournaments.get(tournamentId);
+    public async getTournaments(): Promise<TournamentEntity[]> {
+        return await this.tournamentsRepository.find()
     }
 
-    public getTournaments(): Map<string, Tournament> {
-        return this.tournaments
+    public async getTournamentByName(tournamentId: string): Promise<TournamentEntity> {
+        return await this.tournamentsRepository.findOne(tournamentId);
     }
 
-    public addParticipant(tournament: Tournament, participant: Participant): void {
-        tournament.participants.push(participant)
+    public async saveTournament(tournament: TournamentToAdd): Promise<void> {
+        await this.tournamentsRepository.save(tournament);
+    }
+
+    public async addParticipant(tournament: ITournament, participant: IParticipant): Promise<void> {
+        const tournament = await this.getTournamentByName("toto")
+        this.tournamentsRepository.update(tournament)
+
+        await tournament.participants.save(participant)
     }
 }
+

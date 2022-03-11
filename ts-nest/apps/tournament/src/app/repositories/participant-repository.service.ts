@@ -1,20 +1,30 @@
 import {Injectable} from '@nestjs/common';
-import {Participant} from '../api-model';
+import {ParticipantToAdd} from '../api-model';
+import {Repository} from 'typeorm';
+import {ParticipantEntity} from '../entities/participant.entity'
+import {InjectRepository} from "@nestjs/typeorm";
+
 
 @Injectable()
 export class ParticipantRepositoryService {
-    private participants = new Map<string, Participant>();
+    constructor(
+        @InjectRepository(ParticipantEntity)
+        private participantsRepository: Repository<ParticipantEntity>
+    ) {}
 
-    public saveParticipant(participant: Participant): void {
-        this.participants.set(participant.id, participant);
+    public async getParticipants(): Promise<ParticipantEntity[]> {
+        return this.participantsRepository.find()
     }
 
-    public getParticipant(participantId: string): Participant {
-        return this.participants.get(participantId);
+    public async getParticipantByName(name: string): Promise<ParticipantEntity> {
+        return this.participantsRepository.findOne({where: {name: name}});
     }
 
-    public getParticipants(): Map<string, Participant> {
-        return this.participants
+    public async saveParticipant(participant: ParticipantToAdd): Promise<void> {
+        await this.participantsRepository.save(participant);
     }
 
+    public async removeParticipant(id: string): Promise<void> {
+        await this.participantsRepository.delete(id);
+    }
 }

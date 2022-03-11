@@ -1,6 +1,5 @@
 import {Body, Controller, Get, HttpStatus, Param, Post} from '@nestjs/common';
-import {Participant, ParticipantToAdd} from '../../api-model';
-import {v4 as uuidv4} from 'uuid';
+import {IParticipant, ParticipantToAdd} from '../../api-model';
 import {
     PARTICIPANT_DOESNT_EXIST,
     PARTICIPANT_ELO_MUST_BE_A_NUMBER,
@@ -13,15 +12,16 @@ import {generateException} from '../../exceptions/exception-manager';
 import {ParticipantRepositoryService} from "../../repositories/participant-repository.service";
 import {TournamentRepositoryService} from "../../repositories/tournament-repository.service";
 
-@Controller('tournaments/:tournament_id/participants')
+
+@Controller('tournaments/:tournamentId/participants')
 export class ParticipantController {
     constructor(private participantRepository: ParticipantRepositoryService, private tournamentRepository: TournamentRepositoryService) {
     }
 
     @Post()
-    public addParticipantToTournament(@Param('tournament_id') tournament_id: string, @Body() participantToAdd: ParticipantToAdd): {
+    public async addParticipantToTournament(@Param('tournamentId') tournamentId: string, @Body() participantToAdd: ParticipantToAdd): Promise<{
         id: string;
-    } {
+    }> {
         if (!participantToAdd.name) {
             throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_REQUIRE_NAME);
         }
@@ -36,35 +36,32 @@ export class ParticipantController {
                 throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_NAME_ALREADY_EXIST);
             }
         })
-        const participant = {
-            id: uuidv4(),
-            name: participantToAdd.name,
-            elo: participantToAdd.elo
-        };
 
-        this.participantRepository.saveParticipant(participant)
-        this.tournamentRepository.addParticipant(this.tournamentRepository.getTournament(tournament_id), participant)
 
-        return {id: participant.id};
+        await this.participantRepository.saveParticipant(participantToAdd)
+        const participantSaved = await this.participantRepository.getParticipantByName(participantToAdd.name)
+
+        this.tournamentRepository.addParticipant(this.tournamentRepository.getTournament(tournamentId), participantSaved)
+
+        return {id: participantSaved.id};
     }
 
-    @Get(':participant_id')
-    public getParticipant(@Param('tournament_id') tournament_id: string, @Param('participant_id') participant_id: string): Participant {
-        const tournament = this.tournamentRepository.getTournament(tournament_id)
+    @Get(':participantId')
+    public getParticipant(@Param('tournamentId') tournamentId: string, @Param('participantId') participantId: string): IParticipant {
+        const tournament = this.tournamentRepository.getTournament(tournamentId)
         if (tournament === undefined) {
             throw generateException(HttpStatus.NOT_FOUND, TOURNAMENT_DOESNT_EXIST);
         }
-        let foundedParticipant = null;
-        tournament.participants.forEach((value) => {
-            if (value.id === participant_id) {
-                foundedParticipant = value
+        let foundParticipant = null;
 
+        tournament.participants.forEach((value) => {
+            if (value.id.toString() === participantId) {
+                foundParticipant = value
             }
         })
-        if (foundedParticipant) {
-            return foundedParticipant
+        if (foundParticipant) {
+            return foundParticipant
         }
-
         throw generateException(HttpStatus.BAD_REQUEST, PARTICIPANT_DOESNT_EXIST);
 
     }

@@ -16,13 +16,13 @@ import {
 
 function generateExampleTournament() {
     return {
-        name: 'Tournament_' + Math.floor(Math.random() * (1000)),
+        name: 'Tournament_' + Math.floor(Math.random() * (10000000)),
     } as TournamentToAdd;
 }
 
 function generateExampleParticipant() {
     return {
-        name: 'Participant_' + Math.floor(Math.random() * (1000)),
+        name: 'Participant_' + Math.floor(Math.random() * (10000000)),
         elo: 2500
     } as ParticipantToAdd;
 }
@@ -107,12 +107,11 @@ describe('/tournament endpoint', () => {
                 .expect(201);
 
             const participantId = postParticipant.body.id
-
-            const get_participant = await request(app.getHttpServer())
+            const getParticipant = await request(app.getHttpServer())
                 .get(`/api/tournaments/${tournamentId}/participants/${participantId}`)
                 .expect(200);
 
-            expect(get_participant.body.name).toEqual(exampleParticipant.name);
+            expect(getParticipant.body.name).toEqual(exampleParticipant.name);
         });
 
         it('Participant name already exist', async () => {

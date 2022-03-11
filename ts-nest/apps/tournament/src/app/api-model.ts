@@ -7,7 +7,7 @@ export interface TournamentPhase {
     type: TournamentPhaseType;
 }
 
-export interface Participant {
+export interface IParticipant {
     id: string;
     name: string;
     elo: number;
@@ -16,18 +16,19 @@ export interface Participant {
 export interface ParticipantToAdd {
     name: string;
     elo: number;
+    tournament: ITournament;
 }
 
 export interface TournamentToAdd {
     name: string;
 }
 
-export interface Tournament {
+export interface ITournament {
     id: string;
     name: string;
 
     phases: TournamentPhase[];
-    participants: Participant[];
+    participants: IParticipant[];
 }
 
 export interface Round {
@@ -36,6 +37,6 @@ export interface Round {
 }
 
 export interface Match {
-    participant1: Participant;
-    participant2: Participant;
+    participant1: IParticipant;
+    participant2: IParticipant;
 }
