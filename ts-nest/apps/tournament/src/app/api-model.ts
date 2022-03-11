@@ -13,23 +13,6 @@ export interface IParticipant {
     elo: number;
 }
 
-export interface ParticipantToAdd {
-    name: string;
-    elo: number;
-    tournament: ITournament;
-}
-
-export interface TournamentToAdd {
-    name: string;
-}
-
-export interface ITournament {
-    id: string;
-    name: string;
-
-    phases: TournamentPhase[];
-    participants: IParticipant[];
-}
 
 export interface Round {
     name: string;

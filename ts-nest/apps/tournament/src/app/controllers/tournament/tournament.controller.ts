@@ -1,42 +1,33 @@
 import {Body, Controller, Get, HttpStatus, Param, Post} from '@nestjs/common';
-import {ITournament, TournamentToAdd} from '../../api-model';
-import {v4 as uuidv4} from 'uuid';
-import {TournamentRepositoryService} from '../../repositories/tournament-repository.service';
-import {
-    TOURNAMENT_DOESNT_EXIST,
-    TOURNAMENT_NAME_ALREADY_EXIST,
-    TOURNAMENT_REQUIRE_NAME
-} from '../../exceptions/errors-messages';
-import {generateException} from '../../exceptions/exception-manager';
+import {ITournament} from '../../api-model';
+import {TOURNAMENT_DOESNT_EXIST} from '../../exceptions/errors-messages';
+import {generateException, TournamentDoesntExistException} from '../../exceptions/exception-manager';
+import {TournamentUsecase} from "../../application/tournament/tournament-usecase";
+import {TournamentToCreateDto} from "./tournament.dto";
+import {IsNotEmpty, IsNumber, IsString} from "class-validator";
 
 @Controller('tournaments')
 export class TournamentController {
-    constructor(private tournamentRepository: TournamentRepositoryService) {
+    constructor(private tournamentUsecase: TournamentUsecase) {
     }
 
     @Post()
-    public createTournament(@Body() tournamentToAdd: TournamentToAdd): {
+    public async create(@Body() tournamentToCreateDto: TournamentToCreateDto): Promise<{
         id: string;
-    } {
-        if (tournamentToAdd.name == null) {
-            throw generateException(HttpStatus.BAD_REQUEST, TOURNAMENT_REQUIRE_NAME);
-        }
-        const tournaments = await this.tournamentRepository.getTournaments()
-        tournaments.forEach((value) => {
-            if (value.name === tournamentToAdd.name) {
-                throw generateException(HttpStatus.BAD_REQUEST, TOURNAMENT_NAME_ALREADY_EXIST);
-            }
-        })
-        await this.tournamentRepository.saveTournament(tournamentToAdd)
-        const tournamentSaved = await this.tournamentRepository.getTournamentByName(tournamentToAdd.name)
-        return {id: tournamentSaved.id};
+    }> {
+
+        const tournamentId = await this.tournamentUsecase.create(tournamentToCreateDto.toTournamentToCreate())
+
+        return {id: tournamentId};
     }
 
     @Get(':id')
-    public getTournament(@Param('id') id: string): ITournament {
+    @IsString()
+    @IsNotEmpty()
+    public get(@Param('id') id: string): ITournament {
         const tournament = this.tournamentRepository.getTournament(id);
         if (tournament === undefined) {
-            throw generateException(HttpStatus.NOT_FOUND, TOURNAMENT_DOESNT_EXIST);
+            throw new TournamentDoesntExistException;
         }
         return tournament;
     }
