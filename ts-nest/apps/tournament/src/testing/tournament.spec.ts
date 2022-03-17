@@ -1,4 +1,3 @@
-import {ParticipantToAdd, TournamentToAdd} from '../app/api-model';
 import {INestApplication} from '@nestjs/common';
 import {startApp} from './test.utils';
 import * as request from 'supertest';
@@ -12,18 +11,21 @@ import {
     TOURNAMENT_NAME_ALREADY_EXIST,
     TOURNAMENT_REQUIRE_NAME
 } from '../app/exceptions/errors-messages';
+import {TournamentToCreateDto} from "../app/controllers/tournament/tournament.dto";
+import {ParticipantToCreateDto} from "../app/controllers/participant/participant.dto";
+
 
 function generateExampleTournament() {
     return {
         name: 'Tournament_' + Math.floor(Math.random() * (10000000)),
-    } as TournamentToAdd;
+    } as TournamentToCreateDto;
 }
 
 function generateExampleParticipant() {
     return {
         name: 'Participant_' + Math.floor(Math.random() * (10000000)),
         elo: 2500
-    } as ParticipantToAdd;
+    } as ParticipantToCreateDto;
 }
 
 

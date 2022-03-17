@@ -1,7 +1,5 @@
-import {TournamentDto} from "../tournament/tournament.dto";
-import {ParseIntPipe} from "@nestjs/common";
 import {IsNotEmpty, IsNumber, IsString} from 'class-validator';
-import {Participant, ParticipantToAdd} from "../../application/participant/participant";
+import {ParticipantToAdd} from "../../application/participant/participant";
 
 export class ParticipantToCreateDto {
     @IsString()
@@ -30,5 +28,10 @@ export class ParticipantDto {
     @IsNumber()
     elo: number;
 
-    tournament: TournamentDto;
+
+    constructor(id: string, name: string, elo: number) {
+        this.id = id;
+        this.name = name;
+        this.elo = elo;
+    }
 }

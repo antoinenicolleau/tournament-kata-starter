@@ -1,9 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {Repository} from "typeorm";
-import {ParticipantDao} from "./participant.dao"
+import {ParticipantDao, ParticipantToAddDao} from "./participant.dao"
 import {InjectRepository} from "@nestjs/typeorm";
-import {ParticipantToAddDao} from "./participant.dao";
-import {TournamentDao} from "../tournament/tournament.dao";
 
 
 @Injectable()

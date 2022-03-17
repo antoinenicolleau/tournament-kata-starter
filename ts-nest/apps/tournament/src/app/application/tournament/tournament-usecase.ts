@@ -12,8 +12,6 @@ export class TournamentUsecase {
     }
 
     public async create(tournamentToAdd: TournamentToAdd): Promise<string> {
-        //TODO verification métier
-
         const newTournament = await this.tournamentRepositoryService.insert(tournamentToAdd.toTournamentToAddDao());
         return newTournament.id
     }
@@ -23,8 +21,17 @@ export class TournamentUsecase {
     }
 
     public async get(tournamentId: string): Promise<Tournament> {
-        return await this.tournamentRepositoryService.get(tournamentId)
+        const tournamentDao = await this.tournamentRepositoryService.get(tournamentId)
+        if (tournamentDao === undefined) {
+            throw new TournamentDoesntExistException()
+        }
+        const participants = []
+        if (tournamentDao.participants) {
+            for (const participant of tournamentDao.participants) {
+                participants.push(new Participant(participant.id, participant.name, participant.elo))
+            }
+        }
+        return new Tournament(tournamentDao.id, tournamentDao.name, participants)
     }
 }
 
-1

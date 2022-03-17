@@ -21,6 +21,7 @@ export class TournamentDao {
 
 export class TournamentToAddDao {
     name: string;
+    participants: ParticipantDao[];
 
     constructor(name: string) {
         this.name = name;

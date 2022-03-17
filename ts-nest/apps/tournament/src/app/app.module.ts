@@ -6,23 +6,31 @@ import {ParticipantController} from "./controllers/participant/participant.contr
 import {ParticipantRepositoryService} from "./persistence/participant/participant-repository.service";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ParticipantDao} from "./persistence/participant/participant.dao";
+import {TournamentDao} from "./persistence/tournament/tournament.dao";
+import {TournamentUsecase} from "./application/tournament/tournament-usecase";
+import {ParticipantUsecase} from "./application/participant/participant-usecase";
+import {TournamentDto, TournamentToCreateDto} from "./controllers/tournament/tournament.dto";
+import {ParticipantDto, ParticipantToCreateDto} from "./controllers/participant/participant.dto";
+import { APP_PIPE } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 
 @Module({
     imports: [TypeOrmModule.forRoot({
-        type: 'mysql',
-        host: 'localhost',
-        port: 3306,
-        username: 'idk',
-        password: 'Jesus123',
-        database: 'tournament',
+        type: 'postgres',
+        host: 'cours-architecture-db.florianlafuente.com',
+        port: 12345,
+        username: 'admin',
+        password: 'Passw0rd',
+        database: 'test',
         entities: [
-            ParticipantDao
+            ParticipantDao,
+            TournamentDao
         ],
         synchronize: true,
     }),
-        TypeOrmModule.forFeature([ParticipantDao])],
+        TypeOrmModule.forFeature([ParticipantDao, TournamentDao])],
     controllers: [PingController, TournamentController, ParticipantController],
-    providers: [TournamentRepositoryService, ParticipantRepositoryService],
+    providers: [TournamentRepositoryService, ParticipantRepositoryService, TournamentUsecase, ParticipantUsecase,TournamentDto, ParticipantDto, ParticipantToCreateDto, TournamentToCreateDto]
 })
 export class AppModule {
 }

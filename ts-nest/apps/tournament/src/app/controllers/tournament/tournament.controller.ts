@@ -1,10 +1,8 @@
-import {Body, Controller, Get, HttpStatus, Param, Post} from '@nestjs/common';
-import {ITournament} from '../../api-model';
-import {TOURNAMENT_DOESNT_EXIST} from '../../exceptions/errors-messages';
-import {generateException, TournamentDoesntExistException} from '../../exceptions/exception-manager';
+import {Body, Controller, Get, Param, Post} from '@nestjs/common';
 import {TournamentUsecase} from "../../application/tournament/tournament-usecase";
-import {TournamentToCreateDto} from "./tournament.dto";
-import {IsNotEmpty, IsNumber, IsString} from "class-validator";
+import {TournamentDto, TournamentToCreateDto} from "./tournament.dto";
+import {IsNotEmpty, IsString} from "class-validator";
+import {ParticipantDto} from "../participant/participant.dto";
 
 @Controller('tournaments')
 export class TournamentController {
