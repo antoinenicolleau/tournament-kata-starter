@@ -12,7 +12,7 @@ export class ParticipantToCreateDto {
     @IsNumber()
     elo: number;
 
-    public toParticipantToCreate():ParticipantToAdd{
+    public toParticipantToCreate(): ParticipantToAdd {
         return new ParticipantToAdd(this.name, this.elo)
     }
 }

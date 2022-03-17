@@ -1,4 +1,4 @@
-import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from 'typeorm';
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
 import {ParticipantDao} from "../participant/participant.dao";
 
 @Entity()
@@ -9,16 +9,12 @@ export class TournamentDao {
     @Column()
     name: string;
 
-    @Column()
-    phases: string[];
-
     @OneToMany(type => ParticipantDao, participant => participant.tournament)
     participants: ParticipantDao[]
 
-    constructor(id: string, name: string, phases: string[], participants: ParticipantDao[]) {
+    constructor(id: string, name: string, participants: ParticipantDao[]) {
         this.id = id;
         this.name = name
-        this.phases = phases
         this.participants = participants
     }
 }
@@ -28,6 +24,7 @@ export class TournamentToAddDao {
 
     constructor(name: string) {
         this.name = name;
+        this.participants = [];
     }
 }
 

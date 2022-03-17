@@ -8,8 +8,12 @@ export class TournamentToCreateDto {
     @IsString()
     name: string;
 
-    public toTournamentToCreate():TournamentToAdd{
+    toTournamentToCreate(): TournamentToAdd {
         return new TournamentToAdd(this.name)
+    }
+
+    constructor(name) {
+        this.name = name;
     }
 }
 

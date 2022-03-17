@@ -1,18 +1,6 @@
-import {Body, Controller, Get, HttpStatus, Param, Post} from '@nestjs/common';
+import {Body, Controller, Param, Post, UseFilters} from '@nestjs/common';
 import {ParticipantUsecase} from '../../application/participant/participant-usecase';
-import {
-    PARTICIPANT_DOESNT_EXIST,
-    PARTICIPANT_ELO_MUST_BE_A_NUMBER,
-    PARTICIPANT_NAME_ALREADY_EXIST,
-    PARTICIPANT_REQUIRE_ELO,
-    PARTICIPANT_REQUIRE_NAME,
-    TOURNAMENT_DOESNT_EXIST
-} from '../../exceptions/errors-messages';
-import {generateException} from '../../exceptions/exception-manager';
-import {ParticipantRepositoryService} from "../../persistence/participant/participant-repository.service";
-import {TournamentRepositoryService} from "../../persistence/tournament/tournament-repository.service";
 import {ParticipantToCreateDto} from './participant.dto';
-import {UseFilters} from '@nestjs/common';
 import {HttpExceptionFilter} from '../../exceptions/http-exception.filter';
 
 
@@ -26,7 +14,6 @@ export class ParticipantController {
     public async addToTournament(@Param('tournamentId') tournamentId: string, @Body() participantToCreateDto: ParticipantToCreateDto): Promise<{
         id: string;
     }> {
-
         const participantId = await this.participantUsecase.addToTournament(tournamentId, participantToCreateDto.toParticipantToCreate())
 
         return {id: participantId};

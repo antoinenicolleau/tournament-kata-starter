@@ -15,7 +15,6 @@ export class TournamentController {
     public async create(@Body() tournamentToCreateDto: TournamentToCreateDto): Promise<{
         id: string;
     }> {
-
         const tournamentId = await this.tournamentUsecase.create(tournamentToCreateDto.toTournamentToCreate())
 
         return {id: tournamentId};
@@ -24,11 +23,13 @@ export class TournamentController {
     @Get(':id')
     @IsString()
     @IsNotEmpty()
-    public get(@Param('id') id: string): ITournament {
-        const tournament = this.tournamentRepository.getTournament(id);
-        if (tournament === undefined) {
-            throw new TournamentDoesntExistException;
+    public async get(@Param('id') id: string): Promise<TournamentDto> {
+        const tournament = await this.tournamentUsecase.get(id);
+        const participants = []
+        for (const participant of tournament.participants) {
+            participants.push(new ParticipantDto(participant.id, participant.name, participant.elo))
         }
+
         return tournament;
     }
 }

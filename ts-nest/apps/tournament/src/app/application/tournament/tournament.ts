@@ -4,7 +4,6 @@ import {TournamentDao, TournamentToAddDao} from "../../persistence/tournament/to
 export class Tournament {
     id: string;
     name: string;
-    phases: string[];
     participants: Participant[];
 
     public toTournamentDao(): TournamentDao {

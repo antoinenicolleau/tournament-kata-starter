@@ -13,7 +13,6 @@ import {
     TOURNAMENT_REQUIRE_NAME
 } from '../app/exceptions/errors-messages';
 
-
 function generateExampleTournament() {
     return {
         name: 'Tournament_' + Math.floor(Math.random() * (10000000)),

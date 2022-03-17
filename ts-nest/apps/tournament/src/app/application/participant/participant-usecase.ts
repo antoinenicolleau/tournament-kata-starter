@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {ParticipantToAdd} from './participant';
+import {Participant, ParticipantToAdd} from './participant';
 import {ParticipantRepositoryService} from "../../persistence/participant/participant-repository.service";
 import {TournamentUsecase} from "../tournament/tournament-usecase";
 import {ParticipantNameAlreadyExistException} from "../../exceptions/exception-manager";
@@ -12,7 +12,6 @@ export class ParticipantUsecase {
     }
 
     public async addToTournament(tournamentId: string, participantToAdd: ParticipantToAdd): Promise<string> {
-        //TODO verification métier
         const tournament = await this.tournamentUsecase.get(tournamentId)
         tournament.participants.forEach((participant) => {
             if (participant.name === newParticipant.name) {
@@ -20,7 +19,8 @@ export class ParticipantUsecase {
             }
         })
 
-        const newParticipant = await this.participantRepositoryService.insert(participantToAdd.toParticipantToAddDao());
+        const newParticipantDao = await this.participantRepositoryService.insert(participantToAdd.toParticipantToAddDao());
+        const newParticipant = new Participant(newParticipantDao.id, newParticipantDao.name, newParticipantDao.elo)
         await this.tournamentUsecase.addParticipant(tournament, newParticipant)
         return newParticipant.id
     }
