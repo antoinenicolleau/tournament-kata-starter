@@ -1,5 +1,5 @@
 import {Participant} from "../participant/participant";
-import {TournamentDao} from "../../persistence/tournament/tournament.dao";
+import {TournamentDao, TournamentToAddDao} from "../../persistence/tournament/tournament.dao";
 
 export class Tournament {
     id: string;
@@ -7,8 +7,12 @@ export class Tournament {
     phases: string[];
     participants: Participant[];
 
-    public toTournamentDao():TournamentDao{
-        return new TournamentDao(this.id, this.name, this.phases, this.participants)
+    public toTournamentDao(): TournamentDao {
+        const participantsDao = [];
+        this.participants.forEach((participant) => {
+            participantsDao.push(participant.toParticipantDao())
+        })
+        return new TournamentDao(this.id, this.name, participantsDao)
     }
 }
 

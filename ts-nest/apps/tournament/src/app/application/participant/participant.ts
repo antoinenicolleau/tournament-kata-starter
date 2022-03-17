@@ -1,11 +1,20 @@
-import {ParticipantToAddDao} from "../../persistence/participant/participant.dao";
-import {Tournament} from "../tournament/tournament";
+import {ParticipantDao, ParticipantToAddDao} from "../../persistence/participant/participant.dao";
 
 
-export interface Participant {
+export class Participant {
     id: string;
     name: string;
     elo: number;
+
+    public toParticipantDao(): ParticipantDao {
+        return new ParticipantDao(this.id, this.name, this.elo)
+    }
+
+    constructor(id: string, name: string, elo: number) {
+        this.id = id;
+        this.name = name;
+        this.elo = elo;
+    }
 }
 
 export class ParticipantToAdd {

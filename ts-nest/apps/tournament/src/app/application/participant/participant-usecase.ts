@@ -10,10 +10,7 @@ export class ParticipantUsecase {
 
     constructor(private participantRepositoryService: ParticipantRepositoryService, private tournamentUsecase: TournamentUsecase) {
     }
-    public async create(tournamentToAdd : TournamentToAdd): Promise<string>{
-        //TODO verification métier
 
-    }
     public async addToTournament(tournamentId: string, participantToAdd: ParticipantToAdd): Promise<string> {
         //TODO verification métier
         const tournament = await this.tournamentUsecase.get(tournamentId)

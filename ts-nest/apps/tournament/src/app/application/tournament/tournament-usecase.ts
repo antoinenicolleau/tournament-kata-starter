@@ -1,9 +1,8 @@
 import {Injectable} from '@nestjs/common';
-import {Participant, ParticipantToAdd} from "../participant/participant";
+import {Participant} from "../participant/participant";
 import {TournamentRepositoryService} from "../../persistence/tournament/tournament-repository.service";
 import {Tournament, TournamentToAdd} from './tournament';
-import {TournamentDao} from "../../persistence/tournament/tournament.dao";
-import {ParticipantNameAlreadyExistException} from "../../exceptions/exception-manager";
+import {TournamentDoesntExistException} from "../../exceptions/exception-manager";
 
 
 @Injectable()
@@ -20,7 +19,7 @@ export class TournamentUsecase {
     }
 
     public async addParticipant(tournament: Tournament, newParticipant: Participant): Promise<void> {
-        await this.tournamentRepositoryService.update(tournament, {participants: newParticipant})
+        await this.tournamentRepositoryService.update(tournament.toTournamentDao(), {participants: newParticipant})
     }
 
     public async get(tournamentId: string): Promise<Tournament> {

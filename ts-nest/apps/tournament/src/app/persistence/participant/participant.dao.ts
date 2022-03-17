@@ -15,6 +15,11 @@ export class ParticipantDao {
     @ManyToOne(type => TournamentDao, tournament => tournament.participants)
     tournament: TournamentDao
 
+    constructor(id: string, name: string, elo: number) {
+        this.id = id;
+        this.name = name;
+        this.elo = elo;
+    }
 }
 
 export class ParticipantToAddDao {
