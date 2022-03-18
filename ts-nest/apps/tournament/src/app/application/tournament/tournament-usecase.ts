@@ -3,12 +3,13 @@ import {Participant} from "../participant/participant";
 import {TournamentRepositoryService} from "../../persistence/tournament/tournament-repository.service";
 import {Tournament, TournamentToAdd} from './tournament';
 import {TournamentDoesntExistException} from "../../exceptions/exception-manager";
+import {ParticipantRepositoryService} from "../../persistence/participant/participant-repository.service";
 
 
 @Injectable()
 export class TournamentUsecase {
 
-    constructor(private tournamentRepositoryService: TournamentRepositoryService) {
+    constructor(private tournamentRepositoryService: TournamentRepositoryService, private participantRepositoryService: ParticipantRepositoryService) {
     }
 
     public async create(tournamentToAdd: TournamentToAdd): Promise<string> {
@@ -27,8 +28,9 @@ export class TournamentUsecase {
         }
         const participants = []
         if (tournamentDao.participants) {
-            for (const participant of tournamentDao.participants) {
-                participants.push(new Participant(participant.id, participant.name, participant.elo))
+            for (const participantId in tournamentDao.participants) {
+                const participantDao = await this.participantRepositoryService.get(participantId)
+                participants.push(new Participant(participantDao.id, participantDao.name, participantDao.elo))
             }
         }
         return new Tournament(tournamentDao.id, tournamentDao.name, participants)
